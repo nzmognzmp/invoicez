@@ -1,0 +1,98 @@
+\documentclass[\V{font_size},a4paper,french]{scrlttr2}
+\usepackage[a4paper,left=2cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{fontspec}
+\usepackage{booktabs}
+\usepackage{multicol}
+\usepackage{tabularx}
+\setmainfont{Linux Libertine O}
+\usepackage[french]{babel}
+
+\LoadLetterOption{NF}
+
+\KOMAoptions{%
+   fromalign=left%
+  ,fromphone=true%
+  ,fromemail=true%
+  ,fromlogo=false%
+  ,foldmarks=false%
+  ,parskip=full%
+}
+
+\setkomavar{date}{}
+
+\firsthead{%
+  \V{user_name}\\%
+  \V{user_address}\\%
+  \V{user_phone}\\%
+  \V{user_email}\\%
+  APE~\V{user_ape}\\%
+  SIRET~\V{user_siret}%
+}
+
+\firstfoot{\centering\small{%
+    \V{user_name}\\[0.5em]%
+    \V{user_phone}%
+    \hspace{1cm}%
+    \texttt{\V{user_email}}%
+  }\\[0.5em]%
+  \scriptsize{%
+    Dispensé d'immatriculation au registre du commerce et des sociétés
+    et au répertoire des métiers%
+  }%
+}
+
+
+\begin{document}
+\begin{letter}{%
+    \V{company_name}\\%
+    \V{company_address.strip().replace("\n", "\\\\")}\\%
+    SIREN~\V{company_siren}%
+  }
+  %% if cancels is defined 
+  \opening{\textbf{Facture d'avoir n°\V{invoice_number} émise le \V{date} à \V{user_place} pour remboursement de la facture n°\V{cancels}}}
+  %% else
+  \opening{\textbf{Facture n°\V{invoice_number} émise le \V{date} à \V{user_place}}}
+  %%endif
+
+  \V{description}
+
+  \begin{tabularx}{\textwidth}{cXrrr}
+    \toprule
+    \textbf{Date}       & \textbf{Désignation}       & \textbf{Prix unitaire (€)} & \textbf{Quantité} & \textbf{Montant (€)}     \\
+    \midrule
+    % We use a namespace because of the scoping behavior https://jinja.palletsprojects.com/en/2.11.x/templates/#assignments
+    %% set total = namespace(value=0)
+    %% for product in products:
+    %%   set subtotal = product["pu"] * product["n"]
+    %%   set total.value = total.value + subtotal
+    \V{product["date"]} & \V{product["description"]} & \V{product["pu"]}          & \V{product["n"]}  & \V{subtotal}             \\
+    %% endfor
+    \addlinespace
+    \textbf{Total HT}   &                            &                            &                   & \textbf{\V{total.value}} \\
+    \bottomrule
+    \multicolumn{5}{r}{\small{TVA non applicable, art 293 B du CGI}}                                                             \\
+  \end{tabularx}
+
+  %% if cancels is defined 
+  %% else
+  Date d'échéance du paiment~:~\V{limit_date}.
+
+  En cas de retard de paiement, seront exigibles, conformément à l’article L 441-6 du code de commerce,
+  une indemnité calculée sur la base de trois fois le taux de l’intérêt légal en vigueur ainsi qu’une indemnité
+  forfaitaire pour frais de recouvrement de 40 €.
+
+  À régler par chèque ou par virement bancaire~:
+
+  \begin{tabular}{ll}
+    Domiciliation & \texttt{\V{user_account_bank}}  \\
+    Titulaire     & \texttt{\V{user_account_owner}} \\
+    RIB           & \texttt{\V{user_rib}}           \\
+    IBAN          & \texttt{\V{user_iban}}          \\
+    BIC           & \texttt{\V{user_bic}}           \\
+  \end{tabular}
+  %% endif
+
+
+\end{letter}
+\end{document}
